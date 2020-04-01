@@ -35,10 +35,10 @@ plot=figure(
     x_range=(0, 60),
     y_range=(0, 100010)
 )
-lineInfected1 = plot.line('x','y1',source=source1, color='red', alpha=0.5, legend='Infected',line_width=2)
-lineSusceptible1 = plot.line('x','y2',source=source1, color='navy', alpha=0.5, legend='Susceptible',line_width=2)
-lineRecovered1 = plot.line('x','y3',source=source1, color='green', alpha=0.5, legend='Recovered',line_width=2)
-lineDead1 = plot.line('x','y4',source=source1, color='black', alpha=0.5, legend='Dead',line_width=2)
+lineInfected1 = plot.line('x','y1',source=source1, color='red', alpha=0.5, legend='Infected',line_width=3)
+lineSusceptible1 = plot.line('x','y2',source=source1, color='navy', alpha=0.5, legend='Susceptible',line_width=3)
+lineRecovered1 = plot.line('x','y3',source=source1, color='green', alpha=0.5, legend='Recovered',line_width=3)
+lineDead1 = plot.line('x','y4',source=source1, color='black', alpha=0.5, legend='Dead',line_width=3)
 
 lineInfected2 = plot.line('x','y1',source=source2, color='red', alpha=0.5, legend='Infected',line_width=2)
 lineSusceptible2 = plot.line('x','y2',source=source2, color='navy', alpha=0.5, legend='Susceptible',line_width=2)
