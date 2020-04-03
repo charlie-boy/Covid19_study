@@ -4,27 +4,36 @@ from bokeh.io import curdoc
 import pandas as pd
 from bokeh.models import ColumnDataSource, Select, Button, CheckboxGroup, Div
 
-df = pd.read_csv('Simulations/1_percentile/NoQuar0.csv', skiprows=1)
+df = pd.read_csv('simulations/start_17/no_quarantine/No_Quarantine_Mean.csv')#, skiprows=1)
 day = df['Day']
 susceptible = df['Susceptible']
 infected = df['Infected']
 recovered = df['Recovered']
 dead = df['Dead']
+hospitalized = df['Hospitalized']
+daily_infected = df['Daily Infected']
+daily_dead = df['Daily Dead']
 
-source1 = ColumnDataSource(data={
+source_1 = ColumnDataSource(data={
     'x' : day,
     'y1' : infected,
     'y2' : susceptible,
     'y3' : recovered,
-    'y4' : dead
+    'y4' : dead,
+    'y5' : hospitalized,
+    'y6' : daily_infected,
+    'y7' : daily_dead
 })
 
-source2 = ColumnDataSource(data={
+source_2 = ColumnDataSource(data={
     'x' : day,
     'y1' : infected,
     'y2' : susceptible,
     'y3' : recovered,
-    'y4' : dead
+    'y4' : dead,
+    'y5' : hospitalized,
+    'y6' : daily_infected,
+    'y7' : daily_dead
 })
 
 output_file('index.html')
@@ -35,88 +44,198 @@ plot=figure(
     x_range=(0, 60),
     y_range=(0, 100010)
 )
-lineInfected1 = plot.line('x','y1',source=source1, color='red', alpha=0.5, legend='Infected',line_width=3)
-lineSusceptible1 = plot.line('x','y2',source=source1, color='navy', alpha=0.5, legend='Susceptible',line_width=3)
-lineRecovered1 = plot.line('x','y3',source=source1, color='green', alpha=0.5, legend='Recovered',line_width=3)
-lineDead1 = plot.line('x','y4',source=source1, color='black', alpha=0.5, legend='Dead',line_width=3)
+line_Infected_1 = plot.line('x','y1',source=source_1, color='red', alpha=0.5, legend='Infected',line_width=3)
+line_Susceptible_1 = plot.line('x','y2',source=source_1, color='navy', alpha=0.5, legend='Susceptible',line_width=3)
+lineRecovered_1 = plot.line('x','y3',source=source_1, color='green', alpha=0.5, legend='Recovered',line_width=3)
+line_Dead_1 = plot.line('x','y4',source=source_1, color='black', alpha=0.5, legend='Dead',line_width=3)
+line_Hospitalized_1 = plot.line('x','y2',source=source_1, color='pink', alpha=0.5, legend='Hospitalized',line_width=3)
+line_Daily_Infected_1 = plot.line('x','y3',source=source_1, color='yellow', alpha=0.5, legend='Daily Infected',line_width=3)
+line_Daily_Dead_1 = plot.line('x','y4',source=source_1, color='orange', alpha=0.5, legend='Daily Dead',line_width=3)
 
-lineInfected2 = plot.line('x','y1',source=source2, color='red', alpha=0.5, legend='Infected',line_width=2)
-lineSusceptible2 = plot.line('x','y2',source=source2, color='navy', alpha=0.5, legend='Susceptible',line_width=2)
-lineRecovered2 = plot.line('x','y3',source=source2, color='green', alpha=0.5, legend='Recovered',line_width=2)
-lineDead2 = plot.line('x','y4',source=source2, color='black', alpha=0.5, legend='Dead',line_width=2)
+line_Infected_2 = plot.line('x','y1',source=source_2, color='red', alpha=0.5, legend='Infected',line_width=2)
+line_Susceptible_2 = plot.line('x','y2',source=source_2, color='navy', alpha=0.5, legend='Susceptible',line_width=2)
+lineRecovered_2 = plot.line('x','y3',source=source_2, color='green', alpha=0.5, legend='Recovered',line_width=2)
+line_Dead_2 = plot.line('x','y4',source=source_2, color='black', alpha=0.5, legend='Dead',line_width=2)
+line_Hospitalized_2 = plot.line('x','y2',source=source_2, color='pink', alpha=0.5, legend='Hospitalized',line_width=2)
+line_Daily_Infected_2 = plot.line('x','y3',source=source_2, color='yellow', alpha=0.5, legend='Daily Infected',line_width=2)
+line_Daily_Dead_2 = plot.line('x','y4',source=source_2, color='orange', alpha=0.5, legend='Daily Dead',line_width=2)
 
-lines={0:(lineInfected1,lineInfected2), 1:(lineSusceptible1,lineSusceptible2), 2:(lineRecovered1,lineRecovered2), 3:(lineDead1,lineDead2)}
+lines={0:(line_Infected_1, line_Infected_2), 1:(line_Susceptible_1, line_Susceptible_2),
+       2:(lineRecovered_1, lineRecovered_2), 3:(line_Dead_1, line_Dead_2),
+       4:(line_Hospitalized_1, line_Hospitalized_2), 5:(line_Daily_Infected_1, line_Daily_Infected_2),
+       6:(line_Daily_Dead_1, line_Daily_Dead_2)}
 
-#plot.line('x', 'y', source=source ,legend='Infected',line_width=2)
-
-quarantine_percentile = {"1%": "1_percentile", "2%": "2_percentile", "5%": "5_percentile", "10%": "10_percentile"}
-quarantine_policy = {'No Quarantine': 'No', 'Random Quarantine': 'Rand','HyperSocial Qurarantine': 'Hyper'}
-
-q_policy1 = 'No'
-q_percentile1 = '1_percentile'
-q_policy2 = 'No'
-q_percentile2 = '1_percentile'
+# Dimensions
+quarantine_policy = {'No Quarantine': 'no_quarantine', 'Quarantine':'quarantine'}#'Random Quarantine': 'Rand','HyperSocial Qurarantine': 'Hyper'}
+quarantine_object = {'People': 'People', 'Location':'Location', 'Both':'Both'}
+quarantine_object_type = {'Hypersocial':'Hyper', 'Random':'Random'}
+quarantine_percentile = {'1%': '1', '2%': '2', '5%': '5', '10%': '10'}
+quarantine_start = {'17':'start_17'}
+quarantine_period = {'14':'14 Days','28':'28 Days','42':'42 Days'}
 
 
-checkbox_group = CheckboxGroup(labels=["Infected", "Susceptible", "Recovered", "Dead"], active=[0,1,2,3])
+head = Div(text="""<h1>Compare models to analyze spread of Covid-19</h1>""", width=1000, height=40)
 
-para = Div(text="""<h2>Compare 2 models:</h2>""", width=200, height=20)
+checkbox_div = Div(text="""<h3>Select plot lines you want to see</h3>""", width=500, height=40)
+checkbox_group = CheckboxGroup(labels=["Infected", "Susceptible", "Recovered", "Dead", "Hospitalized", "Daily_Infected", "Daily_Dead"], active=list(range(7)))
 
-para1 = Div(text="""<h3>Model 1</h3>""", width=100, height=30)
-select1a = Select(title="Quarantine policy", value="No Quarantine", options=list(quarantine_policy.keys()))
-select1b = Select(title="Quarantine percentile", value="1%", options=list(quarantine_percentile.keys()))
-button1 = Button(label='PLot model 1')
+## Model 1 initial model
+div_model_1 = Div(text="""<h3>Model 1</h3>""", width=100, height=30)
+select_policy_model_1 = Select(title="Quarantine policy", value="No Quarantine", options=list(quarantine_policy.keys()))
+select_object_model_1 = Select(title="Quarantine object", value="People", options=[])#list(quarantine_object.keys()))
+select_object_type_model_1 = Select(title="Quarantine object type", value="Hypersocial", options=[])#list(quarantine_object_type.keys()))
+select_percentile_model_1 = Select(title="Quarantine percentile", value="1%", options=[])#list(quarantine_percentile.keys()))
+select_start_model_1 = Select(title="Quarantine start day", value="17", options=[])
+select_period_model_1 = Select(title="Quarantine period", value="14", options=[])
+button_model_1 = Button(label='Plot model 1')
 
-para2 = Div(text="""<h3>Model 2</h3>""", width=100, height=30)
-select2a = Select(title="Quarantine policy", value="No Quarantine", options=list(quarantine_policy.keys()))
-select2b = Select(title="Quarantine percentile", value="1%", options=list(quarantine_percentile.keys()))
-button2 = Button(label='PLot model 2')
+## Model 2 initial model
+div_model_2 = Div(text="""<h3>Model 2</h3>""", width=100, height=30)
+select_policy_model_2 = Select(title="Quarantine policy", value="No Quarantine", options=list(quarantine_policy.keys()))
+select_object_model_2 = Select(title="Quarantine object", value="People", options=[])#list(quarantine_object.keys()))
+select_object_type_model_2 = Select(title="Quarantine object type", value="Hypersocial", options=[])#list(quarantine_object_type.keys()))
+select_percentile_model_2 = Select(title="Quarantine percentile", value="1%", options=[])#list(quarantine_percentile.keys()))
+select_start_model_2 = Select(title="Quarantine start day", value="17", options=[])
+select_period_model_2 = Select(title="Quarantine period", value="14", options=[])
+button_model_2 = Button(label='Plot model 2')
 
-def callbackselect1a(attr, old, new):
-    global q_policy1
-    q_policy1 = quarantine_policy[new]
+##############################
+# Model 1 callback functions #
+##############################
 
-def callbackselect1b(attr, old, new):
-    global q_percentile1
-    q_percentile1 = quarantine_percentile[new]
+def callback_select_policy_model_1(attr, old, new):
+    #global q_policy1
+    #q_policy1 = quarantine_policy[new]
+    if select_policy_model_1.value == 'No Quarantine':
+        select_object_model_1.options = []
+        select_object_type_model_1.options = []
+        select_percentile_model_1.options = []
+        select_start_model_1.options = []
+        select_period_model_1.options = []
+    else:
+        select_object_model_1.options = list(quarantine_object.keys())
+        select_object_type_model_1.options = list(quarantine_object_type.keys())
+        select_percentile_model_1.options = list(quarantine_percentile.keys())
+        select_start_model_1.options = list(quarantine_start.keys())
+        select_period_model_1.options = list(quarantine_period.keys())
 
-def callbackselect2a(attr, old, new):
-    global q_policy2
-    q_policy2 = quarantine_policy[new]
+def callback_select_object_model_1(attr, old, new):
+    pass
 
-def callbackselect2b(attr, old, new):
-    global q_percentile2
-    q_percentile2 = quarantine_percentile[new]
+def callback_select_object_type_model_1(attr, old, new):
+    pass
 
-def update1():
-    df = pd.read_csv('Simulations/'+q_percentile1+'/'+q_policy1+'Quar0.csv', skiprows=1)
+def callback_select_percentile_model_1(attr, old, new):
+    pass
+
+def callback_select_start_model_1(attr, old, new):
+    pass
+
+def callback_select_period_model_1(attr, old, new):
+    pass
+
+def update_model_1():
+    if select_policy_model_1.value == 'No Quarantine':
+        df = pd.read_csv('simulations/start_17/no_quarantine/No_Quarantine_Mean.csv')
+    else:
+        df = pd.read_csv('simulations/'+quarantine_start[select_start_model_1.value] + '/' \
+                                    +quarantine_policy[select_policy_model_1.value] + '/' \
+                                    +quarantine_object[select_object_model_1.value] + '/' \
+                                    +quarantine_period[select_period_model_1.value] + '/' \
+                                    +quarantine_percentile[select_percentile_model_1.value] + '_ ' \
+                                    +quarantine_object_type[select_object_type_model_1.value] + ' Quarantine_Mean.csv')
     day = df['Day']
     susceptible = df['Susceptible']
     infected = df['Infected']
     recovered = df['Recovered']
     dead = df['Dead']
-    source1.data={
+    hospitalized = df['Hospitalized']
+    daily_infected = df['Daily Infected']
+    daily_dead = df['Daily Dead']
+
+    source_1.data={
         'x' : day,
         'y1' : infected,
         'y2' : susceptible,
         'y3' : recovered,
-        'y4' : dead
+        'y4' : dead,
+        'y5' : hospitalized,
+        'y6' : daily_infected,
+        'y7' : daily_dead
     }
 
-def update2():
-    df = pd.read_csv('Simulations/'+q_percentile2+'/'+q_policy2+'Quar0.csv', skiprows=1)
+
+##############################
+# Model 2 callback functions #
+##############################
+
+def callback_select_policy_model_2(attr, old, new):
+    # global q_policy2
+    # q_policy2 = quarantine_policy[new]
+    if select_policy_model_2.value == 'No Quarantine':
+        select_object_model_2.options = []
+        select_object_type_model_2.options = []
+        select_percentile_model_2.options = []
+        select_start_model_2.options = []
+        select_period_model_2.options = []
+    else:
+        select_object_model_2.options = list(quarantine_object.keys())
+        select_object_type_model_2.options = list(quarantine_object_type.keys())
+        select_percentile_model_2.options = list(quarantine_percentile.keys())
+        select_start_model_2.options = list(quarantine_start.keys())
+        select_period_model_2.options = list(quarantine_period.keys())
+
+
+def callback_select_object_model_2(attr, old, new):
+    pass
+
+
+def callback_select_object_type_model_2(attr, old, new):
+    pass
+
+
+def callback_select_percentile_model_2(attr, old, new):
+    pass
+
+
+def callback_select_start_model_2(attr, old, new):
+    pass
+
+
+def callback_select_period_model_2(attr, old, new):
+    pass
+
+
+def update_model_2():
+    if select_policy_model_2.value == 'No Quarantine':
+        df = pd.read_csv('simulations/start_17/no_quarantine/No_Quarantine_Mean.csv')
+    else:
+        df = pd.read_csv('simulations/' + quarantine_start[select_start_model_2.value] + '/' \
+                     +quarantine_policy[select_policy_model_2.value] + '/' \
+                     +quarantine_object[select_object_model_2.value] + '/' \
+                     +quarantine_period[select_period_model_2.value] + '/' \
+                     +quarantine_percentile[select_percentile_model_2.value] + '_ ' \
+                     +quarantine_object_type[select_object_type_model_2.value] + ' Quarantine_Mean.csv')
     day = df['Day']
     susceptible = df['Susceptible']
     infected = df['Infected']
     recovered = df['Recovered']
     dead = df['Dead']
-    source2.data={
-        'x' : day,
-        'y1' : infected,
-        'y2' : susceptible,
-        'y3' : recovered,
-        'y4' : dead
+    hospitalized = df['Hospitalized']
+    daily_infected = df['Daily Infected']
+    daily_dead = df['Daily Dead']
+
+    source_2.data = {
+        'x': day,
+        'y1': infected,
+        'y2': susceptible,
+        'y3': recovered,
+        'y4': dead,
+        'y5': hospitalized,
+        'y6': daily_infected,
+        'y7': daily_dead
     }
+
 
 def update_plots(new):
     switch = checkbox_group.active
@@ -130,15 +249,33 @@ def update_plots(new):
 
 checkbox_group.on_click(update_plots)
 
-select1a.on_change('value', callbackselect1a)
-select1b.on_change('value', callbackselect1b)
-button1.on_click(update1)
+## Model 1 selections
+select_policy_model_1.on_change('value', callback_select_policy_model_1)
+select_object_model_1.on_change('value', callback_select_object_model_1)
+select_object_type_model_1.on_change('value', callback_select_object_type_model_1)
+select_percentile_model_1.on_change('value', callback_select_percentile_model_1)
+select_start_model_1.on_change('value', callback_select_start_model_1)
+select_period_model_1.on_change('value', callback_select_period_model_1)
+button_model_1.on_click(update_model_1)
 
-select2a.on_change('value', callbackselect2a)
-select2b.on_change('value', callbackselect2b)
-button2.on_click(update2)
+## Model 2 selections
+select_policy_model_2.on_change('value', callback_select_policy_model_2)
+select_object_model_2.on_change('value', callback_select_object_model_2)
+select_object_type_model_2.on_change('value', callback_select_object_type_model_2)
+select_percentile_model_2.on_change('value', callback_select_percentile_model_2)
+select_start_model_2.on_change('value', callback_select_start_model_2)
+select_period_model_2.on_change('value', callback_select_period_model_2)
+button_model_2.on_click(update_model_2)
 
-col1 = column(checkbox_group, para, para1, select1a, select1b, button1)
-col2 = column(col1, para2, select2a, select2b, button2)
-layout = row(col2, plot)
+#col1 = column(checkbox_group, para, para1, select1a, select1b, button1)
+#col2 = column(col1, para2, select2a, select2b, button2)
+#layout = row(col2, plot)
+left = column(div_model_1, select_policy_model_1, select_object_model_1, select_object_type_model_1,
+              select_percentile_model_1, select_start_model_1, select_period_model_1, button_model_1)
+right = column(div_model_2, select_policy_model_2, select_object_model_2, select_object_type_model_2,
+              select_percentile_model_2, select_start_model_2, select_period_model_2, button_model_2)
+center = column(checkbox_div, checkbox_group, plot)
+body = row(left, center, right)
+layout = column(head, body)
+
 curdoc().add_root(layout)
