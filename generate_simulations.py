@@ -3,6 +3,22 @@ from bokeh.layouts import layout, row, column
 from bokeh.io import curdoc
 import pandas as pd
 from bokeh.models import ColumnDataSource, Select, Button, CheckboxGroup, Div
+from sklearn.metrics import r2_score
+
+###################################### US real data ###########################################
+
+us_daily_url = "https://covidtracking.com/api/us/daily.csv"
+us_df = pd.read_csv(us_daily_url)
+date_us = us_df['date']
+date_us = pd.to_datetime(date_us, format='%Y%m%d')
+infected_us = us_df['positive']#*state_population_dict[state]/total_us_population
+#negative_us = us_df['negative']#*state_population_dict[state]/total_us_population
+recovered_us = us_df['recovered']#*state_population_dict[state]/total_us_population
+dead_us = us_df['death']#*state_population_dict[state]/total_us_population
+daily_infected_us = us_df['positiveIncrease']#*state_population_dict[state]/total_us_population
+daily_dead_us = us_df['deathIncrease']#*state_population_dict[state]/total_us_population
+
+################################################################################################
 
 df = pd.read_csv('simulations/start_17/no_quarantine/No_Quarantine_Mean.csv')#, skiprows=1)
 day = df['Day']
@@ -78,6 +94,18 @@ head = Div(text="""<h1>Compare models to analyze spread of Covid-19</h1>""", wid
 
 checkbox_div = Div(text="""<h3>Select plot lines you want to see</h3>""", width=500, height=40)
 checkbox_group = CheckboxGroup(labels=["Infected", "Susceptible", "Recovered", "Dead", "Hospitalized", "Daily_Infected", "Daily_Dead"], active=list(range(7)))
+
+##################################### R square values #################################################
+rev_infected_us_val = infected_us.values[::-1]
+start_i = 0
+for i in range(len(infected.values)-1):
+    if rev_infected_us_val[0] >= infected.values[i] and rev_infected_us_val[0] <= infected.values[i+1]:
+        start_i = i
+infected_r2 = r2_score(infected_us.values[::-1], infected.values[start_i:len(infected_us)+start_i])
+dead_r2 = r2_score(dead_us.values[::-1], dead.values[start_i:len(dead_us)+start_i])
+r_square_div = Div(text="""<br><h3>R-Square value between current US stats and policies(Model 1) over generated data</h3><br>Infected r2 score = """
+                        +str(infected_r2)+"<br>Dead r2 score = "+str(dead_r2), width=500, height=200)
+#########################################################################################################
 
 ## Model 1 initial model
 div_model_1 = Div(text="""<h3>Model 1</h3>""", width=100, height=30)
@@ -163,6 +191,16 @@ def update_model_1():
         'y6' : daily_infected,
         'y7' : daily_dead
     }
+
+    rev_infected_us_val = infected_us.values[::-1]
+    start_i = 0
+    for i in range(len(infected.values) - 1):
+        if rev_infected_us_val[0] >= infected.values[i] and rev_infected_us_val[0] <= infected.values[i + 1]:
+            start_i = i
+    infected_r2 = r2_score(infected_us.values[::-1], infected.values[start_i:len(infected_us) + start_i])
+    dead_r2 = r2_score(dead_us.values[::-1], dead.values[start_i:len(dead_us) + start_i])
+    r_square_div.text="""<br><h3>R-Square value between current US stats and policies(Model 1) over generated data</h3><br>Infected r2 score = """\
+                      + str(infected_r2) + "<br>Dead r2 score = " + str(dead_r2)
 
 
 ##############################
@@ -271,7 +309,7 @@ button_model_2.on_click(update_model_2)
 #col2 = column(col1, para2, select2a, select2b, button2)
 #layout = row(col2, plot)
 left = column(div_model_1, select_policy_model_1, select_object_model_1, select_object_type_model_1,
-              select_percentile_model_1, select_start_model_1, select_period_model_1, button_model_1)
+              select_percentile_model_1, select_start_model_1, select_period_model_1, button_model_1, r_square_div)
 right = column(div_model_2, select_policy_model_2, select_object_model_2, select_object_type_model_2,
               select_percentile_model_2, select_start_model_2, select_period_model_2, button_model_2)
 center = column(checkbox_div, checkbox_group, plot)
