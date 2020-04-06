@@ -23,7 +23,7 @@ total_us_population = sum(list(state_population_dict.values()))
 
 demography_data = pd.read_csv("Real_spread/demography_data.csv", skiprows=2)
 demography_age = list(demography_data.keys())[1:-2]
-state_population_dict = dict(zip(demography_data.Location,population_data.Pop))
+#state_population_dict = dict(zip(demography_data.Location,population_data.Pop))
 total_us_population = sum(list(state_population_dict.values()))
 ############################
 
